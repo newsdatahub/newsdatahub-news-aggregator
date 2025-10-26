@@ -1,5 +1,12 @@
 # News Aggregator Tutorial
 
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6)
+![React](https://img.shields.io/badge/React-18-61DAFB)
+![Express](https://img.shields.io/badge/Express-4-000000)
+[![Powered by NewsDataHub](https://img.shields.io/badge/Powered%20by-NewsDataHub-111111)](https://newsdatahub.com)
+
 A modern, full-featured news aggregator application built to demonstrate the capabilities of the [NewsDataHub API](https://newsdatahub.com). This project serves as both a functional news reader and a comprehensive tutorial for developers learning to integrate news APIs into their applications.
 
 ## Overview
@@ -13,9 +20,14 @@ The application can run in two modes:
 ## Demo
 
 Try the demo mode to explore the application without any setup:
-1. Clone the repository
-2. Run `docker compose up`
-3. Visit `http://localhost`
+
+```bash
+git clone git@github.com:newsdatahub/newsdatahub-news-aggregator.git
+cd newsdatahub-news-aggregator
+docker compose up
+```
+
+Then visit `http://localhost` in your browser.
 
 No API key required for demo mode.
 
@@ -31,11 +43,9 @@ No API key required for demo mode.
 - Source type filtering (Newspaper, Magazine, Digital Native, etc.)
 
 **Modern UI/UX**
-- Clean, minimalist design with attention to detail
 - Full dark mode support with theme persistence
 - Fully responsive layout (mobile, tablet, desktop)
 - Grid and list view options
-- Infinite scroll pagination
 - Skeleton loading states for better perceived performance
 - Related articles expansion
 
@@ -48,27 +58,30 @@ No API key required for demo mode.
 
 **Developer Friendly**
 - Full TypeScript coverage
-- Well-documented code
 - Modular architecture
 - Docker support for easy deployment
-- Comprehensive error handling
 
 ## How It Works
 
 ```mermaid
-graph TD
-    A[User Browser] -->|HTTP Request| B[React Frontend]
-    B -->|API Call| C[Express Backend]
-    C -->|Check Cache| D{Cache Hit?}
-    D -->|Yes| E[Return Cached Data]
-    D -->|No| F{Demo Mode?}
-    F -->|Yes| G[Load Demo Data]
-    F -->|No| H[NewsDataHub API]
-    H -->|Response| I[Store in Cache]
+graph LR
+    A[Browser]:::blue -->|Request| B[Frontend]:::blue
+    B -->|API Call| C[Backend]:::green
+    C -->|Check| D{Cached?}:::yellow
+    D -->|Yes| E[Return Data]:::green
+    D -->|No| F{Demo Mode?}:::yellow
+    F -->|Yes| G[Demo Data]:::purple
+    F -->|No| H[NewsDataHub API]:::orange
     G --> E
-    I --> E
-    E -->|JSON Response| B
-    B -->|Render| J[Display Articles]
+    H --> E
+    E --> B
+    B --> A
+
+    classDef blue fill:#61DAFB,stroke:#333,stroke-width:2px,color:#000
+    classDef green fill:#68D391,stroke:#333,stroke-width:2px,color:#000
+    classDef yellow fill:#F6E05E,stroke:#333,stroke-width:2px,color:#000
+    classDef purple fill:#B794F4,stroke:#333,stroke-width:2px,color:#000
+    classDef orange fill:#F6AD55,stroke:#333,stroke-width:2px,color:#000
 ```
 
 The application follows a simple flow:
@@ -96,7 +109,7 @@ The application follows a simple flow:
 
 **Project Structure**
 ```
-news-aggregator-tutorial/
+newsdatahub-news-aggregator/
 ├── backend/                    # Express backend
 │   ├── src/
 │   │   ├── config/            # Configuration files
@@ -110,6 +123,7 @@ news-aggregator-tutorial/
 ├── frontend/                   # React frontend
 │   ├── src/
 │   │   ├── components/        # React components
+│   │   │   └── filters/       # Filter components
 │   │   ├── constants/         # Application constants
 │   │   ├── hooks/             # Custom React hooks
 │   │   ├── services/          # API client service
@@ -136,8 +150,8 @@ news-aggregator-tutorial/
 
 1. Clone the repository
    ```bash
-   git clone https://github.com/YOUR_USERNAME/news-aggregator.git
-   cd news-aggregator
+   git clone git@github.com:newsdatahub/newsdatahub-news-aggregator.git
+   cd newsdatahub-news-aggregator
    ```
 
 2. Set up environment variables
@@ -149,59 +163,13 @@ news-aggregator-tutorial/
 
 3. Start with Docker Compose
    ```bash
-   docker-compose up -d
+   docker compose up -d
    ```
 
 4. Open your browser
    ```
    http://localhost
    ```
-
-### Option 2: Local Development
-
-#### Backend Setup
-
-1. Navigate to backend directory
-   ```bash
-   cd backend
-   ```
-
-2. Install dependencies
-   ```bash
-   npm install
-   ```
-
-3. Configure environment
-   ```bash
-   cp .env.example .env
-   # Edit .env with your settings
-   ```
-
-4. Start development server
-   ```bash
-   npm run dev
-   ```
-
-   The backend will run on `http://localhost:3001`
-
-#### Frontend Setup
-
-1. Navigate to frontend directory (in a new terminal)
-   ```bash
-   cd frontend
-   ```
-
-2. Install dependencies
-   ```bash
-   npm install
-   ```
-
-3. Start development server
-   ```bash
-   npm run dev
-   ```
-
-   The frontend will run on `http://localhost:5173`
 
 ### Configuration
 
@@ -236,11 +204,7 @@ VITE_API_BASE_URL=http://localhost:3001
 5. Add it to your backend `.env` file
 6. Set `ENABLE_DEMO_MODE=false` to use live data
 
-**Free Tier Limits:**
-- 50 requests per day
-- 48-hour delay on articles
-- Article content truncated to 100 characters
-- Maximum 10 results per page
+For current pricing, API quotas, and feature details, visit [newsdatahub.com](https://newsdatahub.com).
 
 ## Example Reports
 
@@ -260,38 +224,6 @@ curl http://localhost:3001/api/health
 }
 ```
 
-### Search Endpoint
-
-**Request:**
-```bash
-curl "http://localhost:3001/api/news/search?q=technology&country=US&language=en"
-```
-
-**Response:**
-```json
-{
-  "data": [
-    {
-      "id": "article-123",
-      "title": "Latest Tech Innovation",
-      "description": "Description of the article...",
-      "article_link": "https://example.com/article",
-      "media_url": "https://example.com/image.jpg",
-      "pub_date": "2025-01-15T10:00:00Z",
-      "source_title": "Tech News",
-      "source": {
-        "political_leaning": "center"
-      },
-      "topics": ["technology", "innovation"]
-    }
-  ],
-  "total_results": 1234,
-  "per_page": 100,
-  "next_cursor": "eyJuZXh0X2lkIjoiYXJ0aWNsZS0xMjQifQ==",
-  "is_demo": true
-}
-```
-
 ## FAQ
 
 ### What is the difference between Demo Mode and Live Mode?
@@ -301,6 +233,7 @@ curl "http://localhost:3001/api/news/search?q=technology&country=US&language=en"
 - No API key required
 - All filtering and search features work normally
 - Data is static and does not update
+- Related articles displayed are example/dummy results (not necessarily actually related to the articles they appear under)
 - Perfect for testing, development, or exploring the app
 
 **Live Mode:**
@@ -308,6 +241,7 @@ curl "http://localhost:3001/api/news/search?q=technology&country=US&language=en"
 - Requires a valid API key
 - Returns current news articles based on your plan's constraints
 - Data updates regularly as new articles are published
+- Related articles are actually related to the main article
 - Subject to API rate limits based on your subscription tier
 
 ### Do I need an API key to run the demo?
@@ -321,9 +255,9 @@ No, the demo mode works without an API key. Simply ensure `ENABLE_DEMO_MODE=true
 3. Set `ENABLE_DEMO_MODE=false` in your backend `.env` file
 4. Restart the backend server
 
-### Why am I seeing "48-hour delay" on some articles?
+### Why am I seeing a delay on some articles?
 
-The free tier of the NewsDataHub API includes a 48-hour delay on articles. This means you'll receive news that was published at least 48 hours ago. Paid tiers provide access to real-time news.
+Depending on your NewsDataHub API subscription tier, there may be a time delay on when articles become available. Free tier users typically receive news from a few days ago, while paid tiers provide access to more recent or real-time news. Check [newsdatahub.com](https://newsdatahub.com) for current tier details.
 
 ### How does caching work?
 
@@ -353,9 +287,11 @@ This is a demo/tutorial application designed for learning and local development.
 
 **Important:** This is a demo/tutorial application. For production use, consider adding proper authentication, database storage, and security hardening.
 
-### How do I report bugs or request features?
+**Q: Where can I report bugs or ask questions?**
 
-If you encounter any issues or have suggestions for improvements, please open an issue on the GitHub repository or contact the NewsDataHub team.
+* GitHub → [Issues](https://github.com/newsdatahub/newsdatahub-news-aggregator/issues) or Discussions
+* Email → [support@newsdatahub.com](mailto:support@newsdatahub.com)
+* [NewsDataHub Docs](https://docs.newsdatahub.com)
 
 ### What are the supported search operators?
 
