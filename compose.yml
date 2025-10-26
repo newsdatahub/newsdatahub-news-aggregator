@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    container_name: news-aggregator-backend
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - NEWSDATAHUB_API_KEY=${NEWSDATAHUB_API_KEY:-}
+      - ENABLE_DEMO_MODE=${ENABLE_DEMO_MODE:-true}
+      - ALLOWED_ORIGINS=http://localhost
+    volumes:
+      - ./backend/demo-data:/app/demo-data
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    container_name: news-aggregator-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    environment:
+      - VITE_API_BASE_URL=http://localhost:3001
+    restart: unless-stopped
