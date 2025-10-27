@@ -1,4 +1,5 @@
 # News Aggregator Tutorial
+![Demo Mode](assets/newsdatahub-aggregator-live.gif)
 
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
@@ -18,6 +19,7 @@ The application can run in two modes:
 - **Live Mode**: Connect to the NewsDataHub API for real-time news from around the world
 
 ## Demo
+![Demo Mode](assets/newsdatahub-news-aggregator-demo.gif)
 
 Try the demo mode to explore the application without any setup:
 
