@@ -29,7 +29,6 @@ describe('ArticleCard', () => {
     source_title: 'Test Source',
     media_url: 'https://example.com/image.jpg',
     topics: ['politics', 'environment', 'technology'],
-    country: 'us',
     language: 'en',
   };
 
