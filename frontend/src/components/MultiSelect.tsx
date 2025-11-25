@@ -2,39 +2,44 @@
  * Reusable multi-select component
  */
 
-import { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { ChevronDown, X } from 'lucide-react';
 
-interface MultiSelectOption {
-  value: string;
+const ICON_SIZE_ARROW: number = 16;
+const ICON_SIZE_X: number = 12;
+const DEFAULT_PLACEHOLDER: string = 'Select...';
+const ARROW_CLASS_OPEN: string = 'open';
+
+interface MultiSelectOption<T = string> {
+  value: T;
   label: string;
   flag?: string;
 }
 
-interface MultiSelectProps {
-  options: MultiSelectOption[];
-  selected: string[];
-  onChange: (values: string[]) => void;
+interface MultiSelectProps<T = string> {
+  options: MultiSelectOption<T>[];
+  selected: T[];
+  onChange: (values: T[]) => void;
   placeholder?: string;
   showFlags?: boolean;
-  renderTag?: (value: string) => React.ReactNode;
-  renderOption?: (value: string, label: string) => React.ReactNode;
+  renderTag?: (value: T) => React.ReactNode;
+  renderOption?: (value: T, label: string) => React.ReactNode;
 }
 
-export function MultiSelect({
+export function MultiSelect<T = string>({
   options,
   selected,
   onChange,
-  placeholder = 'Select...',
+  placeholder = DEFAULT_PLACEHOLDER,
   showFlags = false,
   renderTag,
   renderOption,
-}: MultiSelectProps) {
-  const [isOpen, setIsOpen] = useState(false);
+}: MultiSelectProps<T>): React.ReactElement {
+  const [isOpen, setIsOpen] = useState<boolean>(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
+    function handleClickOutside(event: MouseEvent): void {
       if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
         setIsOpen(false);
       }
@@ -44,31 +49,42 @@ export function MultiSelect({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const toggleOption = (value: string) => {
+  const handleToggle = useCallback((): void => {
+    setIsOpen(!isOpen);
+  }, [isOpen]);
+
+  const toggleOption = useCallback((value: T): void => {
     if (selected.includes(value)) {
-      onChange(selected.filter((v) => v !== value));
+      const newSelected: T[] = selected.filter((v: T) => v !== value);
+      onChange(newSelected);
     } else {
-      onChange([...selected, value]);
+      const newSelected: T[] = [...selected, value];
+      onChange(newSelected);
     }
-  };
+  }, [selected, onChange]);
 
-  const removeOption = (value: string, e: React.MouseEvent) => {
+  const removeOption = useCallback((value: T, e: React.MouseEvent): void => {
     e.stopPropagation();
-    onChange(selected.filter((v) => v !== value));
-  };
+    const newSelected: T[] = selected.filter((v: T) => v !== value);
+    onChange(newSelected);
+  }, [selected, onChange]);
 
-  const selectedOptions = options.filter((opt) => selected.includes(opt.value));
+  const selectedOptions: MultiSelectOption<T>[] = useMemo(() => {
+    return options.filter((opt: MultiSelectOption<T>) => selected.includes(opt.value));
+  }, [options, selected]);
+
+  const arrowClass: string = `multiselect-arrow ${isOpen ? ARROW_CLASS_OPEN : ''}`;
 
   return (
     <div className="multiselect-container" ref={containerRef}>
-      <div className="multiselect-trigger" onClick={() => setIsOpen(!isOpen)}>
+      <div className="multiselect-trigger" onClick={handleToggle}>
         <div className="multiselect-values">
           {selectedOptions.length === 0 ? (
             <span className="multiselect-placeholder">{placeholder}</span>
           ) : (
             <div className="multiselect-tags">
-              {selectedOptions.map((option) => (
-                <span key={option.value} className="multiselect-tag">
+              {selectedOptions.map((option: MultiSelectOption<T>) => (
+                <span key={String(option.value)} className="multiselect-tag">
                   {renderTag ? (
                     renderTag(option.value)
                   ) : (
@@ -79,23 +95,23 @@ export function MultiSelect({
                   )}
                   <button
                     className="tag-remove"
-                    onClick={(e) => removeOption(option.value, e)}
+                    onClick={(e: React.MouseEvent) => removeOption(option.value, e)}
                     type="button"
                   >
-                    <X size={12} />
+                    <X size={ICON_SIZE_X} />
                   </button>
                 </span>
               ))}
             </div>
           )}
         </div>
-        <ChevronDown size={16} className={`multiselect-arrow ${isOpen ? 'open' : ''}`} />
+        <ChevronDown size={ICON_SIZE_ARROW} className={arrowClass} />
       </div>
 
       {isOpen && (
         <div className="multiselect-dropdown">
-          {options.map((option) => (
-            <label key={option.value} className="multiselect-option">
+          {options.map((option: MultiSelectOption<T>) => (
+            <label key={String(option.value)} className="multiselect-option">
               <input
                 type="checkbox"
                 checked={selected.includes(option.value)}

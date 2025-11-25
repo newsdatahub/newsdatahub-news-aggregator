@@ -68,6 +68,7 @@ body {
   color: var(--text-primary);
   line-height: 1.6;
   transition: background-color 0.3s ease, color 0.3s ease;
+  overflow-y: scroll;
 }
 
 .app {
@@ -424,6 +425,7 @@ body {
   height: calc(100vh - 89px);
   position: sticky;
   top: 89px;
+  overscroll-behavior: contain;
 }
 
 @media (max-width: 1024px) {
@@ -475,6 +477,7 @@ body {
   flex: 1;
   overflow-y: auto;
   padding: var(--spacing-lg);
+  overscroll-behavior: contain;
 }
 
 /* Custom scrollbar for filter content */
@@ -920,6 +923,7 @@ body {
   overflow: hidden;
   display: flex;
   gap: var(--spacing-lg);
+  min-height: 150px;
 }
 
 @media (max-width: 640px) {
@@ -931,6 +935,7 @@ body {
 .article-list-image-wrapper {
   position: absolute;
   width: 200px;
+  height: 150px;
   flex-shrink: 0;
   overflow: hidden;
   border-radius: var(--radius-md);
@@ -1192,152 +1197,6 @@ body {
 .retry-button-small:hover {
   background-color: var(--accent-hover);
 }
-
-/* Related Articles */
-.related-articles {
-  border-top: 1px solid var(--border-color);
-  margin-top: var(--spacing-md);
-}
-
-.related-articles-toggle {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--spacing-md);
-  background: transparent;
-  border: none;
-  color: var(--accent);
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.related-articles-toggle:hover {
-  background-color: var(--bg-tertiary);
-}
-
-.related-articles-label {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-}
-
-.related-articles-content {
-  padding: 0 var(--spacing-sm) var(--spacing-sm);
-}
-
-.related-articles-loading {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-lg);
-  justify-content: center;
-  color: var(--text-secondary);
-  font-size: 0.875rem;
-}
-
-.spinner-small {
-  width: 1rem;
-  height: 1rem;
-  border: 2px solid var(--border-color);
-  border-top-color: var(--accent);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-.related-articles-error {
-  padding: var(--spacing-md);
-  text-align: center;
-  color: var(--error);
-  font-size: 0.875rem;
-}
-
-.related-articles-empty {
-  padding: var(--spacing-md);
-  text-align: center;
-  color: var(--text-tertiary);
-  font-size: 0.875rem;
-}
-
-.related-articles-list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
-}
-
-.related-article-item {
-  padding: var(--spacing-sm);
-  background-color: var(--bg-tertiary);
-  border-radius: var(--radius-sm);
-  transition: background-color 0.2s;
-}
-
-.related-article-item:hover {
-  background-color: var(--bg-primary);
-}
-
-.related-article-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: var(--spacing-sm);
-  margin-bottom: 0.25rem;
-}
-
-.related-article-meta {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  flex-wrap: wrap;
-}
-
-.related-article-source {
-  font-size: 0.625rem;
-  font-weight: 600;
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.related-article-date {
-  font-size: 0.625rem;
-  color: var(--text-tertiary);
-  white-space: nowrap;
-}
-
-.related-article-title {
-  margin-bottom: 0.25rem;
-  font-size: 0.8125rem;
-  font-weight: 600;
-  line-height: 1.3;
-}
-
-.related-article-title a {
-  color: var(--text-primary);
-  text-decoration: none;
-}
-
-.related-article-title a:hover {
-  color: var(--accent);
-}
-
-.related-article-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  color: var(--accent);
-  text-decoration: none;
-  font-size: 0.6875rem;
-  font-weight: 600;
-  transition: color 0.2s;
-}
-
-.related-article-link:hover {
-  color: var(--accent-hover);
-}
-
 /* Footer */
 .footer {
   background-color: var(--bg-secondary);
@@ -1437,6 +1296,10 @@ body {
   cursor: pointer;
   transition: border-color 0.2s;
   min-height: 38px;
+}
+
+.select-trigger {
+  height: 38px;
 }
 
 .multiselect-trigger:hover,

@@ -19,7 +19,7 @@ export async function makeGetRequest<T>(
   url: string,
   headers: Record<string, string> = {}
 ): Promise<T> {
-  const response = await fetch(url, {
+  const response: Response = await fetch(url, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -28,7 +28,7 @@ export async function makeGetRequest<T>(
   });
 
   if (!response.ok) {
-    const error = new Error(`HTTP ${response.status}: ${response.statusText}`) as HttpError;
+    const error: HttpError = new Error(`HTTP ${response.status}: ${response.statusText}`) as HttpError;
     error.statusCode = response.status;
     try {
       error.body = await response.json();
@@ -48,14 +48,14 @@ export async function makeGetRequest<T>(
  * @returns URL-encoded query string
  */
 export function buildQueryString(params: Record<string, string | number | boolean | undefined>): string {
-  const searchParams = new URLSearchParams();
+  const searchParams: URLSearchParams = new URLSearchParams();
 
-  Object.entries(params).forEach(([key, value]) => {
+  Object.entries(params).forEach(([key, value]: [string, string | number | boolean | undefined]) => {
     if (value !== undefined && value !== null && value !== '') {
       searchParams.append(key, String(value));
     }
   });
 
-  const queryString = searchParams.toString();
+  const queryString: string = searchParams.toString();
   return queryString ? `?${queryString}` : '';
 }

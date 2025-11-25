@@ -2,77 +2,71 @@
  * Political leaning filter component
  */
 
+import React, { useMemo, useCallback } from 'react';
+import type { PoliticalLeaningOption } from '../../constants/filters';
 import { POLITICAL_LEANINGS } from '../../constants/filters';
+import type { PoliticalLeaning } from '../../types/news';
 import { MultiSelect } from '../MultiSelect';
+import styles from './PoliticalLeaningFilter.module.css';
+
+const PLACEHOLDER: string = 'Select political leanings...';
+const LABEL: string = 'Political Leaning';
 
 interface PoliticalLeaningFilterProps {
-  selected: string[];
-  onChange: (leanings: string[]) => void;
+  selected: PoliticalLeaning[];
+  onChange: (leanings: PoliticalLeaning[]) => void;
   isDark: boolean;
 }
 
-export function PoliticalLeaningFilter({ selected, onChange, isDark }: PoliticalLeaningFilterProps) {
-  const options = POLITICAL_LEANINGS.map((option) => ({
-    value: option.value,
-    label: option.label,
-  }));
+export function PoliticalLeaningFilter({ selected, onChange, isDark }: PoliticalLeaningFilterProps): React.ReactElement {
+  const options = useMemo(() => {
+    return POLITICAL_LEANINGS.map((option: PoliticalLeaningOption) => ({
+      value: option.value,
+      label: option.label,
+    }));
+  }, []);
 
-  const renderTag = (value: string) => {
-    const option = POLITICAL_LEANINGS.find((o) => o.value === value);
+  const renderTag = useCallback((value: string): React.ReactNode => {
+    const option: PoliticalLeaningOption | undefined = POLITICAL_LEANINGS.find((o: PoliticalLeaningOption) => o.value === value);
     if (!option) return value;
-    const color = isDark ? option.darkColor : option.color;
     return (
-      <span
-        style={{
-          backgroundColor: `${color}20`,
-          color: color,
-          borderColor: color,
-          border: '1px solid',
-          padding: '0.125rem 0.5rem',
-          borderRadius: '999px',
-          fontSize: '0.75rem',
-          fontWeight: 600,
-        }}
-      >
+      <span className={styles.politicalTag}>
         {option.label}
       </span>
     );
-  };
+  }, []);
 
-  const renderOption = (value: string, label: string) => {
-    const option = POLITICAL_LEANINGS.find((o) => o.value === value);
+  const renderOption = useCallback((value: string, label: string): React.ReactNode => {
+    const option: PoliticalLeaningOption | undefined = POLITICAL_LEANINGS.find((o: PoliticalLeaningOption) => o.value === value);
     if (!option) return label;
-    const color = isDark ? option.darkColor : option.color;
+    const color: string = isDark ? option.darkColor : option.color;
     return (
       <span
+        className={styles.politicalOption}
         style={{
           backgroundColor: `${color}20`,
           color: color,
           borderColor: color,
-          border: '1px solid',
-          padding: '0.25rem 0.75rem',
-          borderRadius: '999px',
-          fontSize: '0.875rem',
-          fontWeight: 600,
-          display: 'inline-block',
         }}
       >
         {label}
       </span>
     );
-  };
+  }, [isDark]);
 
   return (
     <div className="filter-section">
-      <h3>Political Leaning</h3>
-      <MultiSelect
-        options={options}
-        selected={selected}
-        onChange={onChange}
-        placeholder="Select political leanings..."
-        renderTag={renderTag}
-        renderOption={renderOption}
-      />
+      <div className="filter-label">
+        <span className="filter-label-text">{LABEL}</span>
+        <MultiSelect
+          options={options}
+          selected={selected}
+          onChange={onChange}
+          placeholder={PLACEHOLDER}
+          renderTag={renderTag}
+          renderOption={renderOption}
+        />
+      </div>
     </div>
   );
 }

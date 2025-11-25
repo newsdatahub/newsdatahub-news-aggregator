@@ -1,0 +1,26 @@
+/**
+ * Political leaning filter styles
+ */
+
+.politicalTag {
+  padding: 0.125rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 1px solid;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  background-color: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+
+.politicalOption {
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border: 1px solid;
+  display: inline-block;
+}

@@ -1,36 +1,50 @@
-/**
- * Individual article card component
- */
-
+import React, { useState, useCallback, useMemo } from 'react';
 import { ExternalLink } from 'lucide-react';
-import { NewsArticle } from '../types/news';
+import type { NewsArticle } from '../types/news';
 import { formatRelativeTime, capitalizeWords } from '../utils/formatters';
-import { PoliticalBadge } from './PoliticalBadge';
-import { RelatedArticles } from './RelatedArticles';
-import { useState } from 'react';
 
-interface ArticleCardProps {
-  article: NewsArticle;
-  isDark: boolean;
-}
-
-const PLACEHOLDER_IMAGES = [
+const PLACEHOLDER_IMAGES: string[] = [
   '/placeholder-images/news-placeholder-image-1.png',
   '/placeholder-images/news-placeholder-image-2.png',
   '/placeholder-images/news-placeholder-image-3.png',
   '/placeholder-images/news-placeholder-image-4.png',
 ];
+const MAX_TOPICS_DISPLAYED: number = 3;
+const EXTERNAL_LINK_ICON_SIZE: number = 14;
+const READ_MORE_TEXT: string = 'Read More';
+const PLACEHOLDER_LABEL_TEXT: string = 'Placeholder Image';
+const INVALID_TOPIC_PATTERN: string = 'Available on Developer plan';
 
 function getPlaceholderImage(title: string): string {
-  const hash = title.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  const hash: number = title.split('').reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0);
   return PLACEHOLDER_IMAGES[hash % PLACEHOLDER_IMAGES.length];
 }
 
-export function ArticleCard({ article, isDark }: ArticleCardProps) {
-  const [imageError, setImageError] = useState(false);
-  const hasImage = !!article.media_url && !imageError;
-  const imageSrc = hasImage && article.media_url ? article.media_url : getPlaceholderImage(article.title);
-  const isPlaceholder = !hasImage;
+interface ArticleCardProps {
+  article: NewsArticle;
+}
+
+export function ArticleCard({ article }: ArticleCardProps): React.ReactElement {
+  const [imageError, setImageError] = useState<boolean>(false);
+
+  const handleImageError = useCallback((): void => {
+    setImageError(true);
+  }, []);
+
+  const hasImage: boolean = !!article.media_url && !imageError;
+  const imageSrc: string = useMemo(() => {
+    return hasImage && article.media_url ? article.media_url : getPlaceholderImage(article.title);
+  }, [hasImage, article.media_url, article.title]);
+  const isPlaceholder: boolean = !hasImage;
+
+  const formattedDate: string = formatRelativeTime(article.pub_date);
+
+  // Filter out invalid topic entries
+  const validTopics: string[] | undefined = article.topics?.filter(
+    (topic: string): boolean => !topic.includes(INVALID_TOPIC_PATTERN)
+  );
+  const hasTopics: boolean = !!(validTopics && validTopics.length > 0);
+  const displayedTopics: string[] | undefined = hasTopics ? validTopics?.slice(0, MAX_TOPICS_DISPLAYED) : undefined;
 
   return (
     <article className="article-card">
@@ -40,25 +54,22 @@ export function ArticleCard({ article, isDark }: ArticleCardProps) {
           alt={article.title}
           loading="lazy"
           className="article-image"
-          onError={() => setImageError(true)}
+          onError={handleImageError}
         />
-        {isPlaceholder && <span className="placeholder-label">Placeholder Image</span>}
+        {isPlaceholder && <span className="placeholder-label">{PLACEHOLDER_LABEL_TEXT}</span>}
       </div>
       <div className="article-card-content">
         <div className="article-meta">
           <span className="article-source">{article.source_title}</span>
-          {article.source?.political_leaning && (
-            <PoliticalBadge leaning={article.source.political_leaning} isDark={isDark} />
-          )}
         </div>
         <h3 className="article-title">
           <a href={article.article_link} target="_blank" rel="noopener noreferrer">
             {article.title}
           </a>
         </h3>
-        {article.topics && article.topics.length > 0 && (
+        {hasTopics && displayedTopics && (
           <div className="article-topics">
-            {article.topics.slice(0, 3).map((topic, index) => (
+            {displayedTopics.map((topic: string, index: number) => (
               <span key={index} className="topic-pill">
                 {capitalizeWords(topic)}
               </span>
@@ -67,18 +78,17 @@ export function ArticleCard({ article, isDark }: ArticleCardProps) {
         )}
         <p className="article-description">{article.description}</p>
         <div className="article-footer">
-          <span className="article-date">{formatRelativeTime(article.pub_date)}</span>
+          <span className="article-date">{formattedDate}</span>
           <a
             href={article.article_link}
             target="_blank"
             rel="noopener noreferrer"
             className="read-more"
           >
-            Read More <ExternalLink size={14} />
+            {READ_MORE_TEXT} <ExternalLink size={EXTERNAL_LINK_ICON_SIZE} />
           </a>
         </div>
       </div>
-      <RelatedArticles articleId={article.id} isDark={isDark} currentArticleTitle={article.title} />
     </article>
   );
 }

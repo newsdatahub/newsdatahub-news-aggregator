@@ -1,31 +1,30 @@
-import { Router, Request, Response } from 'express';
+import { Router, Request, Response, NextFunction } from 'express';
 import { config } from '../config/env';
 import { NewsSearchParams, NewsSearchResponse } from '../types/news';
 import { newsService } from '../services/newsService';
 import { demoDataService } from '../services/demoDataService';
+import { validateNewsSearchParams } from '../utils/validators';
+import {
+  RateLimitError,
+  UnauthorizedError,
+  BadRequestError,
+  ExternalApiError,
+} from '../utils/errors';
 import logger from '../utils/logger';
 
-const router = Router();
+const router: Router = Router();
 
 /**
  * GET /api/news/search
- * Search and filter news articles
+ * Search and filter news articles based on various parameters
+ * @throws {ValidationError} If request parameters are invalid
+ * @throws {RateLimitError} If API rate limit is exceeded
+ * @throws {UnauthorizedError} If API authentication fails
  */
-router.get('/search', async (req: Request, res: Response): Promise<void> => {
+router.get('/search', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const params: NewsSearchParams = {
-      q: req.query.q as string | undefined,
-      country: req.query.country as string | undefined,
-      language: req.query.language as string | undefined,
-      political_leaning: req.query.political_leaning as string | undefined,
-      topic: req.query.topic as string | undefined,
-      exclude_topic: req.query.exclude_topic as string | undefined,
-      source_type: req.query.source_type as string | undefined,
-      start_date: req.query.start_date as string | undefined,
-      end_date: req.query.end_date as string | undefined,
-      per_page: req.query.per_page ? parseInt(req.query.per_page as string, 10) : undefined,
-      cursor: req.query.cursor as string | undefined,
-    };
+    // Validate request parameters
+    const params: NewsSearchParams = validateNewsSearchParams(req.query);
 
     logger.info('News search request', { params });
 
@@ -49,112 +48,34 @@ router.get('/search', async (req: Request, res: Response): Promise<void> => {
     }
 
     res.json(response);
-  } catch (error) {
-    logger.error('Error in news search', { error });
-
-    // Handle API errors
+  } catch (error: unknown) {
+    // Map HTTP errors from external API to custom error classes
     const httpError = error as { statusCode?: number; body?: { message?: string } };
 
     if (httpError.statusCode === 429) {
-      res.status(429).json({
-        error: 'Too Many Requests',
-        message: 'Daily API quota exceeded. Please try again tomorrow or enable demo mode.',
-      });
-      return;
+      logger.warn('API rate limit exceeded');
+      return next(new RateLimitError('Daily API quota exceeded. Please try again tomorrow or enable demo mode.'));
     }
 
     if (httpError.statusCode === 401) {
-      res.status(401).json({
-        error: 'Unauthorized',
-        message: 'API key is invalid or expired. Please check your configuration.',
-      });
-      return;
+      logger.error('API authentication failed');
+      return next(new UnauthorizedError('API key is invalid or expired. Please check your configuration.'));
     }
 
     if (httpError.statusCode === 400) {
-      res.status(400).json({
-        error: 'Bad Request',
-        message: httpError.body?.message || 'Invalid search parameters. Please adjust your filters.',
-      });
-      return;
+      logger.warn('Invalid API request', { message: httpError.body?.message });
+      return next(new BadRequestError(httpError.body?.message || 'Invalid search parameters. Please adjust your filters.'));
     }
 
-    // Generic error
-    res.status(500).json({
-      error: 'Internal Server Error',
-      message: 'Oops! Something went wrong. Please try again later.',
-    });
+    if (httpError.statusCode) {
+      logger.error('External API error', { statusCode: httpError.statusCode, error });
+      return next(new ExternalApiError('Failed to fetch news from external API', error));
+    }
+
+    // Pass other errors to error handling middleware
+    logger.error('Error in news search', { error });
+    next(error);
   }
 });
 
-/**
- * GET /api/news/related/:articleId
- * Get related articles for a given article
- */
-router.get('/related/:articleId', async (req: Request, res: Response): Promise<void> => {
-  try {
-    const { articleId } = req.params;
-    const perPage = req.query.per_page ? parseInt(req.query.per_page as string, 10) : 10;
-
-    logger.info('Related articles request', { articleId, perPage });
-
-    // Use demo mode if enabled
-    if (config.ENABLE_DEMO_MODE) {
-      // In demo mode, return a subset of demo articles with related structure
-      const demoResult = demoDataService.getArticles({ per_page: perPage });
-      res.json({
-        related_to: {
-          id: articleId,
-          title: 'Demo Article',
-          source_title: 'Demo Source',
-          article_link: 'https://example.com',
-          pub_date: new Date().toISOString(),
-        },
-        count: demoResult.data.length,
-        data: demoResult.data,
-      });
-      logger.info('Returning demo related articles', { count: demoResult.data.length });
-    } else {
-      // Use real API
-      const apiResult = await newsService.getRelatedArticles(articleId, perPage);
-      res.json(apiResult);
-    }
-  } catch (error) {
-    logger.error('Error fetching related articles', { error });
-
-    // Handle API errors
-    const httpError = error as { statusCode?: number; body?: { message?: string } };
-
-    if (httpError.statusCode === 429) {
-      res.status(429).json({
-        error: 'Too Many Requests',
-        message: 'Daily API quota exceeded. Please try again tomorrow or enable demo mode.',
-      });
-      return;
-    }
-
-    if (httpError.statusCode === 401) {
-      res.status(401).json({
-        error: 'Unauthorized',
-        message: 'API key is invalid or expired. Please check your configuration.',
-      });
-      return;
-    }
-
-    if (httpError.statusCode === 404) {
-      res.status(404).json({
-        error: 'Not Found',
-        message: 'Article not found or no related articles available.',
-      });
-      return;
-    }
-
-    // Generic error
-    res.status(500).json({
-      error: 'Internal Server Error',
-      message: 'Oops! Something went wrong. Please try again later.',
-    });
-  }
-});
-
-export default router;
+export const newsRouter = router;

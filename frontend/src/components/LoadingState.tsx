@@ -2,10 +2,14 @@
  * Loading skeleton component
  */
 
-export function LoadingState() {
+import React from 'react';
+
+const SKELETON_COUNT: number = 9;
+
+export function LoadingState(): React.ReactElement {
   return (
     <div className="loading-grid">
-      {Array.from({ length: 9 }).map((_, i) => (
+      {Array.from({ length: SKELETON_COUNT }).map((_: unknown, i: number) => (
         <div key={i} className="article-card skeleton">
           <div className="skeleton-image"></div>
           <div className="article-card-content">
