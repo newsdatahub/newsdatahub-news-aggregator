@@ -2,31 +2,42 @@
  * Footer component with branding and links
  */
 
-export function Footer() {
+import React from 'react';
+
+const POWERED_BY_TEXT: string = 'Powered by ';
+const POWERED_BY_LINK_TEXT: string = 'NewsDataHub API';
+const POWERED_BY_URL: string = 'https://newsdatahub.com';
+const DOCS_TEXT: string = 'API Documentation';
+const DOCS_URL: string = 'https://newsdatahub.com/docs';
+const GITHUB_TEXT: string = 'GitHub';
+const GITHUB_URL: string = 'https://github.com/newsdatahub/newsdatahub-news-aggregator';
+const SEPARATOR: string = '•';
+
+export function Footer(): React.ReactElement {
   return (
     <footer className="footer">
       <div className="footer-content">
         <p>
-          Powered by{' '}
-          <a href="https://newsdatahub.com" target="_blank" rel="noopener noreferrer">
-            NewsDataHub API
+          {POWERED_BY_TEXT}
+          <a href={POWERED_BY_URL} target="_blank" rel="noopener noreferrer">
+            {POWERED_BY_LINK_TEXT}
           </a>
         </p>
         <div className="footer-links">
           <a
-            href="https://newsdatahub.com/docs"
+            href={DOCS_URL}
             target="_blank"
             rel="noopener noreferrer"
           >
-            API Documentation
+            {DOCS_TEXT}
           </a>
-          <span className="footer-separator">•</span>
+          <span className="footer-separator">{SEPARATOR}</span>
           <a
-            href="https://github.com/newsdatahub/news-aggregator-demo"
+            href={GITHUB_URL}
             target="_blank"
             rel="noopener noreferrer"
           >
-            GitHub
+            {GITHUB_TEXT}
           </a>
         </div>
       </div>

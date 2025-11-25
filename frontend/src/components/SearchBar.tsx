@@ -100,7 +100,7 @@ export function SearchBar({
             <li>
               <strong>AND:</strong> Both terms must appear
               <br />
-              <code>climate AND change</code>
+              <code>quantum AND computing</code>
             </li>
             <li>
               <strong>OR:</strong> Either term can appear

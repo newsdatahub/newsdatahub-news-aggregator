@@ -4,7 +4,24 @@
 
 import { NewsSearchParams, NewsSearchResponse } from '../types/news';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+const API_BASE_URL: string = import.meta.env.VITE_API_BASE_URL || '';
+const API_ENDPOINT_NEWS_SEARCH: string = '/api/news/search';
+const API_ENDPOINT_HEALTH: string = '/api/health';
+const QUERY_STRING_PREFIX: string = '?';
+const EMPTY_STRING: string = '';
+const ERROR_MESSAGE_REQUEST_FAILED: string = 'Request failed';
+const ERROR_MESSAGE_FETCH_FAILED: string = 'Failed to fetch news';
+const ERROR_MESSAGE_HEALTH_CHECK_FAILED: string = 'Health check failed';
+
+interface HealthCheckResponse {
+  ok: boolean;
+  demo_mode: boolean;
+  api_configured: boolean;
+}
+
+interface ErrorResponse {
+  message: string;
+}
 
 /**
  * Builds query string from parameters
@@ -13,16 +30,16 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
  * @returns URL-encoded query string
  */
 function buildQueryString(params: Record<string, string | number | undefined>): string {
-  const searchParams = new URLSearchParams();
+  const searchParams: URLSearchParams = new URLSearchParams();
 
-  Object.entries(params).forEach(([key, value]) => {
-    if (value !== undefined && value !== null && value !== '') {
+  Object.entries(params).forEach(([key, value]: [string, string | number | undefined]): void => {
+    if (value !== undefined && value !== null && value !== EMPTY_STRING) {
       searchParams.append(key, String(value));
     }
   });
 
-  const queryString = searchParams.toString();
-  return queryString ? `?${queryString}` : '';
+  const queryString: string = searchParams.toString();
+  return queryString ? `${QUERY_STRING_PREFIX}${queryString}` : EMPTY_STRING;
 }
 
 /**
@@ -32,38 +49,14 @@ function buildQueryString(params: Record<string, string | number | undefined>): 
  * @returns News search response
  */
 export async function searchArticles(params: NewsSearchParams): Promise<NewsSearchResponse> {
-  const queryString = buildQueryString(params as Record<string, string | number | undefined>);
-  const url = `${API_BASE_URL}/api/news/search${queryString}`;
+  const queryString: string = buildQueryString(params as Record<string, string | number | undefined>);
+  const url: string = `${API_BASE_URL}${API_ENDPOINT_NEWS_SEARCH}${queryString}`;
 
-  const response = await fetch(url);
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: 'Request failed' }));
-    throw new Error(error.message || 'Failed to fetch news');
-  }
-
-  return response.json();
-}
-
-/**
- * Fetches related articles for a given article ID
- *
- * @param articleId - The ID of the article to find related articles for
- * @param limit - Number of related articles to fetch (default: 10)
- * @returns Related articles response with metadata
- */
-export async function getRelatedArticles(
-  articleId: string,
-  limit: number = 10
-): Promise<{ related_to: any; count: number; data: any[] }> {
-  const queryString = buildQueryString({ per_page: limit });
-  const url = `${API_BASE_URL}/api/news/related/${articleId}${queryString}`;
-
-  const response = await fetch(url);
+  const response: Response = await fetch(url);
 
   if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: 'Request failed' }));
-    throw new Error(error.message || 'Failed to fetch related articles');
+    const error: ErrorResponse = await response.json().catch((): ErrorResponse => ({ message: ERROR_MESSAGE_REQUEST_FAILED }));
+    throw new Error(error.message || ERROR_MESSAGE_FETCH_FAILED);
   }
 
   return response.json();
@@ -74,16 +67,12 @@ export async function getRelatedArticles(
  *
  * @returns Health status
  */
-export async function checkHealth(): Promise<{
-  ok: boolean;
-  demo_mode: boolean;
-  api_configured: boolean;
-}> {
-  const url = `${API_BASE_URL}/api/health`;
-  const response = await fetch(url);
+export async function checkHealth(): Promise<HealthCheckResponse> {
+  const url: string = `${API_BASE_URL}${API_ENDPOINT_HEALTH}`;
+  const response: Response = await fetch(url);
 
   if (!response.ok) {
-    throw new Error('Health check failed');
+    throw new Error(ERROR_MESSAGE_HEALTH_CHECK_FAILED);
   }
 
   return response.json();

@@ -14,7 +14,6 @@ interface ArticleGridProps {
   loading: boolean;
   error: string | null;
   hasMore: boolean;
-  isDark: boolean;
   onLoadMore: () => void;
   onRetry?: () => void;
   viewMode: 'grid' | 'list';
@@ -26,7 +25,6 @@ export function ArticleGrid({
   loading,
   error,
   hasMore,
-  isDark,
   onLoadMore,
   onRetry,
   viewMode,
@@ -49,9 +47,9 @@ export function ArticleGrid({
       <div className={viewMode === 'grid' ? 'article-grid' : 'article-list'}>
         {articles.map((article) =>
           viewMode === 'grid' ? (
-            <ArticleCard key={article.id} article={article} isDark={isDark} />
+            <ArticleCard key={article.id} article={article} />
           ) : (
-            <ArticleListItem key={article.id} article={article} isDark={isDark} />
+            <ArticleListItem key={article.id} article={article} />
           )
         )}
       </div>

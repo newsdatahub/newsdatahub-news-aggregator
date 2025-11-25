@@ -9,14 +9,16 @@ import { PoliticalLeaningFilter } from './filters/PoliticalLeaningFilter';
 import { DateRangeFilter } from './filters/DateRangeFilter';
 import { TopicFilter } from './filters/TopicFilter';
 import { SourceTypeFilter } from './filters/SourceTypeFilter';
+import type { PoliticalLeaning, SourceType } from '../types/news';
+import type { Topic } from '../constants/topics';
 
 export interface FilterState {
   countries: string[];
   language: string;
-  politicalLeanings: string[];
-  topics: string[];
-  excludeTopics: string[];
-  sourceTypes: string[];
+  politicalLeanings: PoliticalLeaning[];
+  topics: Topic[];
+  excludeTopics: Topic[];
+  sourceTypes: SourceType[];
   startDate: string;
   endDate: string;
 }

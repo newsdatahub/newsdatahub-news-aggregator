@@ -7,20 +7,29 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
+    "lucide-react": "^0.294.0",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0",
     "react-datepicker": "^4.25.0",
-    "lucide-react": "^0.294.0"
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
     "@types/react": "^18.2.43",
-    "@types/react-dom": "^18.2.17",
     "@types/react-datepicker": "^4.19.4",
+    "@types/react-dom": "^18.2.17",
     "@vitejs/plugin-react": "^4.2.1",
+    "jsdom": "^27.2.0",
     "typescript": "^5.3.3",
-    "vite": "^5.0.8"
+    "vite": "^5.0.8",
+    "vitest": "^4.0.13"
   }
 }

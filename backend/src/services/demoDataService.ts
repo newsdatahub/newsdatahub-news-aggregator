@@ -20,13 +20,13 @@ class DemoDataService {
   private loadDemoData(): void {
     try {
       // Try multiple possible paths (for dev vs production)
-      const possiblePaths = [
+      const possiblePaths: string[] = [
         join(__dirname, '../../demo-data'), // From dist/services
         join(__dirname, '../../../demo-data'), // From src/services (ts-node)
         join(process.cwd(), 'demo-data'), // From project root
       ];
 
-      let demoDataPath = '';
+      let demoDataPath: string = '';
       for (const path of possiblePaths) {
         if (existsSync(path)) {
           demoDataPath = path;
@@ -39,20 +39,20 @@ class DemoDataService {
         throw new Error('Demo data directory not found');
       }
 
-      const files = ['data-1.json', 'data-2.json', 'data-3.json', 'data-4.json'];
+      const files: string[] = ['data-1.json', 'data-2.json', 'data-3.json', 'data-4.json'];
       const allArticles: NewsArticle[] = [];
 
-      files.forEach((file) => {
+      files.forEach((file: string) => {
         try {
-          const filePath = join(demoDataPath, file);
+          const filePath: string = join(demoDataPath, file);
           if (!existsSync(filePath)) {
             logger.warn(`Demo data file not found: ${filePath}`);
             return;
           }
-          const data = readFileSync(filePath, 'utf-8');
-          const response = JSON.parse(data);
+          const data: string = readFileSync(filePath, 'utf-8');
+          const response: { data: NewsArticle[] } = JSON.parse(data);
           // Extract the data array from the API response format
-          const articles = response.data as NewsArticle[];
+          const articles: NewsArticle[] = response.data;
           allArticles.push(...articles);
           logger.info(`Loaded demo data from ${file}`, { count: articles.length });
         } catch (error) {
@@ -75,13 +75,13 @@ class DemoDataService {
    * @returns Filtered articles
    */
   filterArticles(params: NewsSearchParams): NewsArticle[] {
-    let filtered = [...this.demoArticles];
+    let filtered: NewsArticle[] = [...this.demoArticles];
 
     // Search query filter
     if (params.q) {
-      const query = params.q.toLowerCase();
+      const query: string = params.q.toLowerCase();
       filtered = filtered.filter(
-        (article) =>
+        (article: NewsArticle): boolean =>
           article.title.toLowerCase().includes(query) ||
           article.description.toLowerCase().includes(query)
       );
@@ -89,59 +89,59 @@ class DemoDataService {
 
     // Country filter
     if (params.country) {
-      const countries = params.country.split(',').map((c) => c.trim().toUpperCase());
+      const countries: string[] = params.country.split(',').map((c: string): string => c.trim().toUpperCase());
       filtered = filtered.filter(
-        (article) => article.source?.country && countries.includes(article.source.country)
+        (article: NewsArticle): boolean => !!(article.source?.country && countries.includes(article.source.country))
       );
     }
 
     // Language filter
     if (params.language) {
-      filtered = filtered.filter((article) => article.language === params.language);
+      filtered = filtered.filter((article: NewsArticle): boolean => article.language === params.language);
     }
 
     // Political leaning filter
     if (params.political_leaning) {
-      const leanings = params.political_leaning.split(',').map((l) => l.trim());
+      const leanings: string[] = params.political_leaning.split(',').map((l: string): string => l.trim());
       filtered = filtered.filter(
-        (article) => article.source?.political_leaning && leanings.includes(article.source.political_leaning)
+        (article: NewsArticle): boolean => !!(article.source?.political_leaning && leanings.includes(article.source.political_leaning))
       );
     }
 
     // Topic filter
     if (params.topic) {
-      const topics = params.topic.split(',').map((t) => t.trim().toLowerCase());
-      filtered = filtered.filter((article) =>
-        article.topics?.some((topic) => topics.includes(topic.toLowerCase()))
+      const topics: string[] = params.topic.split(',').map((t: string): string => t.trim().toLowerCase());
+      filtered = filtered.filter((article: NewsArticle): boolean =>
+        !!(article.topics?.some((topic: string): boolean => topics.includes(topic.toLowerCase())))
       );
     }
 
     // Exclude topic filter
     if (params.exclude_topic) {
-      const excludeTopics = params.exclude_topic.split(',').map((t) => t.trim().toLowerCase());
-      filtered = filtered.filter((article) =>
-        !article.topics?.some((topic) => excludeTopics.includes(topic.toLowerCase()))
+      const excludeTopics: string[] = params.exclude_topic.split(',').map((t: string): string => t.trim().toLowerCase());
+      filtered = filtered.filter((article: NewsArticle): boolean =>
+        !article.topics?.some((topic: string): boolean => excludeTopics.includes(topic.toLowerCase()))
       );
     }
 
     // Source type filter
     if (params.source_type) {
-      const types = params.source_type.split(',').map((t) => t.trim());
+      const types: string[] = params.source_type.split(',').map((t: string): string => t.trim());
       filtered = filtered.filter(
-        (article) => article.source?.type && types.includes(article.source.type)
+        (article: NewsArticle): boolean => !!(article.source?.type && types.includes(article.source.type))
       );
     }
 
     // Date range filter
     if (params.start_date) {
-      const startDate = new Date(params.start_date);
-      filtered = filtered.filter((article) => new Date(article.pub_date) >= startDate);
+      const startDate: Date = new Date(params.start_date);
+      filtered = filtered.filter((article: NewsArticle): boolean => new Date(article.pub_date) >= startDate);
     }
 
     if (params.end_date) {
-      const endDate = new Date(params.end_date);
+      const endDate: Date = new Date(params.end_date);
       endDate.setHours(23, 59, 59, 999); // End of day
-      filtered = filtered.filter((article) => new Date(article.pub_date) <= endDate);
+      filtered = filtered.filter((article: NewsArticle): boolean => new Date(article.pub_date) <= endDate);
     }
 
     return filtered;
@@ -154,9 +154,9 @@ class DemoDataService {
    * @returns Deduplicated articles
    */
   private deduplicateByTitle(articles: NewsArticle[]): NewsArticle[] {
-    const seen = new Set<string>();
-    return articles.filter((article) => {
-      const normalizedTitle = article.title.toLowerCase().trim();
+    const seen: Set<string> = new Set<string>();
+    return articles.filter((article: NewsArticle): boolean => {
+      const normalizedTitle: string = article.title.toLowerCase().trim();
       if (seen.has(normalizedTitle)) {
         return false;
       }
@@ -177,13 +177,13 @@ class DemoDataService {
     per_page: number;
     next_cursor: string | null;
   } {
-    const filtered = this.filterArticles(params);
-    const deduplicated = this.deduplicateByTitle(filtered);
-    const perPage = params.per_page || 100;
-    const offset = params.cursor ? parseInt(params.cursor, 10) : 0;
+    const filtered: NewsArticle[] = this.filterArticles(params);
+    const deduplicated: NewsArticle[] = this.deduplicateByTitle(filtered);
+    const perPage: number = params.per_page || 100;
+    const offset: number = params.cursor ? parseInt(params.cursor, 10) : 0;
 
-    const data = deduplicated.slice(offset, offset + perPage);
-    const hasMore = offset + perPage < deduplicated.length;
+    const data: NewsArticle[] = deduplicated.slice(offset, offset + perPage);
+    const hasMore: boolean = offset + perPage < deduplicated.length;
 
     return {
       data,
