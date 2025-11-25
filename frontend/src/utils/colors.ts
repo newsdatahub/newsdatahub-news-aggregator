@@ -2,7 +2,10 @@
  * Color utility functions for political leanings
  */
 
-import { POLITICAL_LEANINGS } from '../constants/filters';
+import { POLITICAL_LEANINGS, type PoliticalLeaningOption } from '../constants/filters';
+
+const DEFAULT_COLOR_LIGHT: string = '#6b7280';
+const DEFAULT_COLOR_DARK: string = '#94a3b8';
 
 /**
  * Gets the color for a political leaning based on theme
@@ -12,9 +15,9 @@ import { POLITICAL_LEANINGS } from '../constants/filters';
  * @returns Color hex code
  */
 export function getPoliticalLeaningColor(leaning: string, isDark: boolean): string {
-  const option = POLITICAL_LEANINGS.find((opt) => opt.value === leaning);
+  const option: PoliticalLeaningOption | undefined = POLITICAL_LEANINGS.find((opt: PoliticalLeaningOption): boolean => opt.value === leaning);
   if (!option) {
-    return isDark ? '#94a3b8' : '#6b7280';
+    return isDark ? DEFAULT_COLOR_DARK : DEFAULT_COLOR_LIGHT;
   }
   return isDark ? option.darkColor : option.color;
 }
@@ -26,6 +29,6 @@ export function getPoliticalLeaningColor(leaning: string, isDark: boolean): stri
  * @returns Human-readable label
  */
 export function getPoliticalLeaningLabel(leaning: string): string {
-  const option = POLITICAL_LEANINGS.find((opt) => opt.value === leaning);
+  const option: PoliticalLeaningOption | undefined = POLITICAL_LEANINGS.find((opt: PoliticalLeaningOption): boolean => opt.value === leaning);
   return option?.label || leaning;
 }

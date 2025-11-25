@@ -25,14 +25,15 @@ class CacheService {
    * @returns Cached value or null if not found/expired
    */
   get<T>(key: string): T | null {
-    const entry = this.cache.get(key) as CacheEntry<T> | undefined;
+    const entry: CacheEntry<T> | undefined = this.cache.get(key) as CacheEntry<T> | undefined;
 
     if (!entry) {
       return null;
     }
 
     // Check if expired
-    if (Date.now() > entry.expiresAt) {
+    const currentTime: number = Date.now();
+    if (currentTime > entry.expiresAt) {
       this.cache.delete(key);
       logger.debug('Cache expired', { key });
       return null;
@@ -50,8 +51,9 @@ class CacheService {
    * @param ttlSeconds - Time to live in seconds
    */
   set<T>(key: string, data: T, ttlSeconds: number): void {
-    const expiresAt = Date.now() + ttlSeconds * 1000;
-    this.cache.set(key, { data, expiresAt });
+    const expiresAt: number = Date.now() + ttlSeconds * 1000;
+    const entry: CacheEntry<T> = { data, expiresAt };
+    this.cache.set(key, entry);
     logger.debug('Cache set', { key, ttlSeconds });
   }
 

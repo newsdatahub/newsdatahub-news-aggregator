@@ -2,9 +2,12 @@
  * Hook for managing dark mode state
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
-const DARK_MODE_KEY = 'news-aggregator-dark-mode';
+const DARK_MODE_KEY: string = 'news-aggregator-dark-mode';
+const DARK_MODE_VALUE_TRUE: string = 'true';
+const DARK_CLASS_NAME: string = 'dark';
+const PREFERS_DARK_MEDIA_QUERY: string = '(prefers-color-scheme: dark)';
 
 /**
  * Custom hook for dark mode state management
@@ -12,25 +15,27 @@ const DARK_MODE_KEY = 'news-aggregator-dark-mode';
  * @returns Dark mode state and toggle function
  */
 export function useDarkMode(): [boolean, () => void] {
-  const [isDark, setIsDark] = useState<boolean>(() => {
-    const stored = localStorage.getItem(DARK_MODE_KEY);
+  const [isDark, setIsDark] = useState<boolean>((): boolean => {
+    const stored: string | null = localStorage.getItem(DARK_MODE_KEY);
     if (stored !== null) {
-      return stored === 'true';
+      return stored === DARK_MODE_VALUE_TRUE;
     }
     // Default to system preference
-    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+    return window.matchMedia(PREFERS_DARK_MEDIA_QUERY).matches;
   });
 
-  useEffect(() => {
+  useEffect((): void => {
     localStorage.setItem(DARK_MODE_KEY, String(isDark));
     if (isDark) {
-      document.documentElement.classList.add('dark');
+      document.documentElement.classList.add(DARK_CLASS_NAME);
     } else {
-      document.documentElement.classList.remove('dark');
+      document.documentElement.classList.remove(DARK_CLASS_NAME);
     }
   }, [isDark]);
 
-  const toggle = () => setIsDark((prev) => !prev);
+  const toggle = useCallback((): void => {
+    setIsDark((prev: boolean): boolean => !prev);
+  }, []);
 
   return [isDark, toggle];
 }

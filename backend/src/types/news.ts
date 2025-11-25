@@ -18,6 +18,7 @@ export interface NewsArticle {
   topics?: string[];
   creator?: string | null;
   content?: string;
+  sentiment?: object | null;
 }
 
 export interface SourceMetadata {
@@ -47,6 +48,7 @@ export interface NewsSearchParams {
   end_date?: string;
   per_page?: number;
   cursor?: string;
+  sort_by?: string;
 }
 
 export interface NewsSearchResponse {

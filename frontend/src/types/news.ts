@@ -42,11 +42,13 @@ export interface NewsSearchParams {
   language?: string;
   political_leaning?: string;
   topic?: string;
+  exclude_topic?: string;
   source_type?: string;
   start_date?: string;
   end_date?: string;
   per_page?: number;
   cursor?: string;
+  sort_by?: string;
 }
 
 export type PoliticalLeaning =

@@ -4,7 +4,7 @@ import { config } from '../config/env';
 /**
  * Winston logger configuration
  */
-const logger = winston.createLogger({
+const logger: winston.Logger = winston.createLogger({
   level: config.NODE_ENV === 'production' ? 'info' : 'debug',
   format: winston.format.combine(
     winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
@@ -17,8 +17,9 @@ const logger = winston.createLogger({
     new winston.transports.Console({
       format: winston.format.combine(
         winston.format.colorize(),
-        winston.format.printf(({ level, message, timestamp, ...meta }) => {
-          let msg = `${timestamp} [${level}]: ${message}`;
+        winston.format.printf((info: winston.Logform.TransformableInfo): string => {
+          const { level, message, timestamp, ...meta } = info;
+          let msg: string = `${timestamp} [${level}]: ${message}`;
           if (Object.keys(meta).length > 0 && meta.service) {
             delete meta.service;
             if (Object.keys(meta).length > 0) {

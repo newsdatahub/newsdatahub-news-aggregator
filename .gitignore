@@ -24,6 +24,13 @@ build/
 .DS_Store
 Thumbs.db
 
+# Test coverage
+coverage/
+backend/coverage/
+frontend/coverage/
+playwright-report/
+test-results/
+
 # Logs
 logs/
 *.log

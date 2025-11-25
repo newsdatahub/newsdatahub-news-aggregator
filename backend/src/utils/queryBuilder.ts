@@ -62,6 +62,10 @@ export function buildNewsQuery(params: NewsSearchParams): Record<string, string 
     query.cursor = params.cursor;
   }
 
+  if (params.sort_by) {
+    query.sort_by = params.sort_by;
+  }
+
   return query;
 }
 
@@ -72,9 +76,9 @@ export function buildNewsQuery(params: NewsSearchParams): Record<string, string 
  * @returns Normalized cache key string
  */
 export function buildCacheKey(params: NewsSearchParams): string {
-  const normalized = buildNewsQuery(params);
+  const normalized: Record<string, string | number> = buildNewsQuery(params);
   // Sort keys for consistent cache keys
-  const sortedKeys = Object.keys(normalized).sort();
-  const keyParts = sortedKeys.map((key) => `${key}=${normalized[key]}`);
+  const sortedKeys: string[] = Object.keys(normalized).sort();
+  const keyParts: string[] = sortedKeys.map((key: string): string => `${key}=${normalized[key]}`);
   return keyParts.join('&');
 }
